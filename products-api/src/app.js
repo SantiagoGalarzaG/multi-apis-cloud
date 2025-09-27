@@ -12,6 +12,18 @@ const SERVICE = process.env.SERVICE_NAME || "products-api";
 const USERS_API_URL = process.env.USERS_API_URL || "http://users-api:4001";
 
 app.get("/health", (_req, res) => res.json({ status: "ok", service: SERVICE }));
+app.get("/products/with-users", async (_req, res) => {
+  try {
+    const r = await fetch(`${USERS_API_URL}/users`);
+    const users = await r.json();
+    res.json({
+      products,
+      usersCount: Array.isArray(users) ? users.length : 0
+    });
+  } catch (e) {
+    res.status(502).json({ error: "No se pudo consultar users-api", detail: String(e) });
+  }
+});
 
 // GET /products
 app.get("/products", (_req, res) => res.json(products));
@@ -33,18 +45,7 @@ app.post("/products", (req, res) => {
 
 // Ejemplo de comunicación entre servicios (compose crea la red):
 // GET /products/with-users  -> concatena productos con conteo de usuarios (mock)
-app.get("/products/with-users", async (_req, res) => {
-  try {
-    const r = await fetch(`${USERS_API_URL}/users`);
-    const users = await r.json();
-    res.json({
-      products,
-      usersCount: Array.isArray(users) ? users.length : 0
-    });
-  } catch (e) {
-    res.status(502).json({ error: "No se pudo consultar users-api", detail: String(e) });
-  }
-});
+
 
 app.listen(PORT, () => {
   console.log(`✅ ${SERVICE} listening on http://localhost:${PORT}`);
