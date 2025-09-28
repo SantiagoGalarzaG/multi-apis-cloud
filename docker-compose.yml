@@ -6,7 +6,7 @@ services:
     environment:
       - PORT=4001
       - SERVICE_NAME=users-api
-      - DATABASE_URL=${USERS_DATABASE_URL}
+      - USERS_DATABASE_URL=${USERS_DATABASE_URL}
     ports:
       - "4001:4001"
     restart: unless-stopped
@@ -17,6 +17,7 @@ services:
       - PORT=4002
       - SERVICE_NAME=products-api
       - USERS_API_URL=http://users-api:4001
+      - PRODUCTS_DATABASE_URL=${PRODUCTS_DATABASE_URL}
     ports:
       - "4002:4002"
     depends_on:
