@@ -18,10 +18,10 @@ jobs:
       matrix:
         include:
           - service: users-api
-            context: users-api
+            context: ./users-api
             image: users-api
           - service: products-api
-            context: products-api
+            context: ./products-api
             image: products-api
 
     steps:
