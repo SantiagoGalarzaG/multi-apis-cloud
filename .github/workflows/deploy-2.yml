@@ -45,8 +45,16 @@ jobs:
         run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       - name: 🏗️ Build & Push ${{ matrix.service }}
+        # build from the service folder to guarantee a valid context
+        working-directory: ${{ matrix.context }}
+        env:
+          DOCKER_BUILDKIT: 1
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ matrix.context }}
-          docker tag  ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
+          echo "Building service: ${{ matrix.service }}"
+          echo "Context dir: ${{ matrix.context }}"
+          echo "Image: ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest"
+          # build from current directory (the service folder) so there's always a context
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest .
+          docker tag ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
