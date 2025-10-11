@@ -43,7 +43,7 @@ app.get("/users", async (_req, res) => {
     res.status(500).json({ error: "query failed", detail: String(e) });
   }
 });
-
+//hola 
 // Usuario por id
 app.get("/users/:id", async (req, res) => {
   try {
