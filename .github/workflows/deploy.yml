@@ -18,35 +18,43 @@ jobs:
       matrix:
         include:
           - service: users-api
-            context: users-api
+            context: ./users-api
             image: users-api
           - service: products-api
-            context: products-api
+            context: ./products-api
             image: products-api
 
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🔐 Azure Login (Service Principal)
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: 🧰 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: 🔑 Login to ACR
-        uses: azure/docker-login@v1
+      - name: 🔑 Log in to Azure Container Registry (ACR)
+        uses: docker/login-action@v3
         with:
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: 🏷️ Set version tag (short sha)
+      - name: 🏷️ Set version tag (short commit SHA)
         id: vars
         run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: 🏗️ Build & Push ${{ matrix.service }}
+      - name: 🧾 Debug: verify Docker context
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ matrix.context }}
-          docker tag  ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
+          echo "Service: ${{ matrix.service }}"
+          echo "Context: ${{ matrix.context }}"
+          echo "Contents of context:"
+          ls -la "${{ matrix.context }}"
+
+      - name: 🏗️ Build & Push ${{ matrix.service }} to ACR
+        run: |
+          echo "🛠️ Building image for ${{ matrix.service }} using context: '${{ matrix.context }}'"
+          docker buildx build \
+            --platform linux/amd64 \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }} \
+            "${{ matrix.context }}" \
+            --push
