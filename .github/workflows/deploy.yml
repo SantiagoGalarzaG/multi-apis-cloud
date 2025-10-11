@@ -25,7 +25,7 @@ jobs:
             image: products-api
 
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
       - name: 🔐 Azure Login (Service Principal)
@@ -33,20 +33,35 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🔑 Login to ACR
+      - name: 🔑 Login to Azure Container Registry (ACR)
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.ACR_LOGIN_SERVER }}
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: 🏷️ Set version tag (short sha)
+      - name: 🏷️ Set version tag (short commit SHA)
         id: vars
         run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: 🏗️ Build & Push ${{ matrix.service }}
+      - name: 🧾 Debug - List repository files
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ matrix.context }}
-          docker tag  ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest
-          docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
+          echo "Current directory:"
+          pwd
+          echo "Contents:"
+          ls -R
+
+      - name: 🏗️ Build & Push ${{ matrix.service }} to ACR
+        run: |
+          echo "Building service: ${{ matrix.service }}"
+          echo "Using context: ${{ matrix.context }}"
+
+          docker buildx create --use --name multiarchbuilder || docker buildx use multiarchbuilder
+          docker buildx inspect --bootstrap
+
+          docker buildx build \
+            --platform linux/amd64 \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest \
+            -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }} \
+            ${{ matrix.context }} \
+            --push
