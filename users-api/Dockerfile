@@ -8,7 +8,8 @@ RUN npm ci --omit=dev
 
 COPY src ./src
 # expone el puerto 4001
-EXPOSE 4001
-ENV PORT=4001 SERVICE_NAME=users-api
+# EXPOSE 4001
+# ENV PORT=4001 SERVICE_NAME=users-api
+ENV SERVICE_NAME=users-api
 # ejecuta el comando para iniciar la aplicacion
 CMD ["node", "src/app.js"]
