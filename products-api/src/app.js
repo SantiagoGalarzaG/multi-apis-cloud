@@ -14,6 +14,8 @@ const USERS_API_URL = process.env.USERS_API_URL || "http://users-api:4001";
 // Health
 app.get("/health", (_req, res) => res.json({ status: "ok", service: SERVICE }));
 
+app.get("/health2", (_req, res) => res.json({ status: "ok", service: SERVICE }));
+
 // Health DB
 app.get("/db/health", async (_req, res) => {
   try {
@@ -116,3 +118,5 @@ app.listen(PORT, () => {
   console.log(`✅ ${SERVICE} listening on http://localhost:${PORT}`);
   console.log(`↔️  USERS_API_URL=${USERS_API_URL}`);
 });
+
+
