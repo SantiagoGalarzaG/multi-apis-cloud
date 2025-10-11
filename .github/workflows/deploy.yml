@@ -44,24 +44,22 @@ jobs:
         id: vars
         run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: 🧾 Debug - List repository files
+      - name: 🧾 Debug: verify Docker context
         run: |
-          echo "Current directory:"
-          pwd
-          echo "Contents:"
-          ls -R
+          echo "Building service: ${{ matrix.service }}"
+          echo "Context directory: ${{ matrix.context }}"
+          ls -la "${{ matrix.context }}"
 
       - name: 🏗️ Build & Push ${{ matrix.service }} to ACR
         run: |
-          echo "Building service: ${{ matrix.service }}"
-          echo "Using context: ${{ matrix.context }}"
-
+          echo "Starting Docker Buildx..."
           docker buildx create --use --name multiarchbuilder || docker buildx use multiarchbuilder
           docker buildx inspect --bootstrap
 
+          echo "Building image for ${{ matrix.service }}..."
           docker buildx build \
             --platform linux/amd64 \
             -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest \
             -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }} \
-            ${{ matrix.context }} \
+            "${{ matrix.context }}" \
             --push
