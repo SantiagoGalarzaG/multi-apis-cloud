@@ -44,25 +44,9 @@ jobs:
         id: vars
         run: echo "TAG=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      # 🔍 Paso de debug (temporal)
-      - name: Debug matrix vars
-        run: |
-          echo "service=${{ matrix.service }}"
-          echo "context=${{ matrix.context }}"
-          echo "image=${{ matrix.image }}"
-          ls -la
-          ls -la "${{ matrix.context }}"
-
-      # Opción A: build manual (si prefieres quedarte con docker CLI)
       - name: 🏗️ Build & Push ${{ matrix.service }}
         run: |
-          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest "${{ matrix.context }}"
+          docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ matrix.context }}
           docker tag  ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:latest
           docker push ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.image }}:${{ steps.vars.outputs.TAG }}
-
-      # --- O ---
-      # Opción B (recomendada): buildx action (comenta la opción A si usas esta)
-      # - name: 🏗️ Build & Push ${{ matrix.service }} (buildx)
-      #   uses: docker/build-push-action@v5
-      #   with:
