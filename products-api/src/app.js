@@ -123,9 +123,7 @@
 import dotenv from "dotenv";
 import path from "path";
 import fs from "fs";
-import fetch from "node-fetch";
 import { fileURLToPath } from "url";
-import { getCosmosContairner } from "./cosmos.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const candidates = [
