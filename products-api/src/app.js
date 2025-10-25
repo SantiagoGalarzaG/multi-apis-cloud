@@ -191,7 +191,6 @@ const Product =
 
 // ---------- Health ----------
 app.get("/health", (_req, res) => res.json({ status: "ok", service: SERVICE }));
-app.get("/health2", (_req, res) => res.json({ status: "ok", service: SERVICE }));
 
 // DB health (Mongo/Cosmos)
 app.get("/db/health", async (_req, res) => {
