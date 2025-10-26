@@ -87,5 +87,6 @@ app.delete("/users/:id", async (req, res) => {
 
 // Health
 app.get("/health", (_req, res) => res.json({ status: "ok", service: "users-api" }));
+app.get("/health2", (_req, res) => res.json({ status: "ok", service: "users-api" }));
 
 app.listen(PORT, () => console.log(`✅ users-api listening on http://localhost:${PORT}`));
