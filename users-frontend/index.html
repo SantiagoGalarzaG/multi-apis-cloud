@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Users Frontend</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Gestión de Usuarios</h1>
+      <div class="api-config">
+        <label for="apiBase">API Base URL:</label>
+        <input id="apiBase" type="text" placeholder="http://localhost:4001" />
+        <button id="saveBase">Guardar</button>
+        <small id="baseStatus"></small>
+      </div>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Crear usuario</h2>
+        <form id="createForm">
+          <div class="form-row">
+            <label for="name">Nombre</label>
+            <input id="name" name="name" type="text" required />
+          </div>
+          <div class="form-row">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <button type="submit">Crear</button>
+          <span class="inline-status" id="createStatus"></span>
+        </form>
+      </section>
+
+      <section class="card">
+        <div class="list-header">
+          <h2>Usuarios</h2>
+          <button id="refresh">Actualizar listado</button>
+        </div>
+        <div id="listStatus" class="list-status"></div>
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer>
+      <small>users-frontend · conectado a users-api</small>
+    </footer>
+
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>

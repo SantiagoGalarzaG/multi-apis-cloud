@@ -11,6 +11,17 @@ services:
       - "4001:4001"
     restart: unless-stopped
 
+  products-react:
+    build:
+      context: ./products-react
+      args:
+        VITE_API_BASE: http://products-api:4002
+    ports:
+      - "5174:80"
+    depends_on:
+      - products-api
+    restart: unless-stopped
+
   products-api:
     build: ./products-api
     environment:
@@ -22,6 +33,19 @@ services:
       - MONGO_DB_NAME=${MONGO_DB_NAME}
     ports:
       - "4002:4002"
+    depends_on:
+      - users-api
+    restart: unless-stopped
+
+  users-react:
+    build:
+      context: ./users-react
+      args:
+        # Apunta al servicio interno de Docker para evitar CORS y asegurar conectividad en red interna
+        VITE_API_BASE: http://users-api:4001
+    ports:
+      # Nginx sirve en 80 dentro del contenedor; lo exponemos como 5173 afuera
+      - "5173:80"
     depends_on:
       - users-api
     restart: unless-stopped
